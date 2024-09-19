@@ -1,0 +1,96 @@
+import customtkinter
+import rdkit
+from rdkit import Chem
+from rdkit.Chem import AllChem
+
+customtkinter.set_appearance_mode("dark")
+try:
+    customtkinter.set_default_colors("green")  # Corrected attribute name
+except AttributeError:
+    print("No such attribute")
+
+root = customtkinter.CTk()
+root.title("Chemistry Helper")  # Set the window title
+root.geometry("500x350")
+
+def create_new_window(title):
+    new_window = customtkinter.CTk()
+    new_window.title(title)
+    new_window.geometry("400x300")  # Adjust the size as needed
+
+    # Add content for the specific window here
+    if title == "Simulator":
+        # Create a frame for the simulator content
+        simulator_frame = customtkinter.CTkFrame(master=new_window)
+        simulator_frame.pack(pady=20, padx=20, fill="both", expand=True)
+
+        # Create labels and entry fields for reactant input
+        reactant1_label = customtkinter.CTkLabel(master=simulator_frame, text="Reactant 1:")
+        reactant1_label.grid(row=0, column=0, padx=10, pady=10)
+        reactant1_entry = customtkinter.CTkEntry(master=simulator_frame)
+        reactant1_entry.grid(row=0, column=1, padx=10, pady=10)
+
+        reactant2_label = customtkinter.CTkLabel(master=simulator_frame, text="Reactant 2:")
+        reactant2_label.grid(row=1, column=0, padx=10, pady=10)
+        reactant2_entry = customtkinter.CTkEntry(master=simulator_frame)
+        reactant2_entry.grid(row=1, column=1, padx=10, pady=10)
+
+        # Create a button to trigger the simulation
+        simulate_button = customtkinter.CTkButton(master=simulator_frame, text="Simulate", command=lambda: simulate(reactant1_entry.get(), reactant2_entry.get()))
+        simulate_button.grid(row=2, column=0, columnspan=2, padx=10, pady=10)
+
+        # Create a label to display the product
+        product_label = customtkinter.CTkLabel(master=simulator_frame, text="Product:")
+        product_label.grid(row=3, column=0, padx=10, pady=10)
+        product_entry = customtkinter.CTkLabel(master=simulator_frame, text="", text_color="green")
+        product_entry.grid(row=3, column=1, padx=10, pady=10)
+
+    elif title == "Experiment":
+        # Add experiment content here
+        pass
+    elif title == "Quiz":
+        # Add quiz content here
+        pass
+
+    new_window.mainloop()
+
+def simulate(reactant1, reactant2):
+    # Use RDKit to convert SMILES strings to molecules
+    mol1 = Chem.MolFromSmiles(reactant1)
+    mol2 = Chem.MolFromSmiles(reactant2)
+
+    # Create a reaction object
+    reaction = AllChem.ReactionFromSmarts("[C:H3][C:H2]>>[C:H2][C:H3]O")  # Replace "[Rxn]" with the desired reaction SMIRKS
+    # Run the reaction
+    products = reaction.RunReactants([mol1, mol2])
+
+    if products:
+        product_smiles = products[0][0].GetString()
+        product_name = pcp.get_compounds(product_smiles)[0].name
+        product_entry.configure(text=product_name)
+    else:
+        product_entry.configure(text="No reactions found")
+
+def new_func():
+    reaction = AllChem.ReactionFromSmarts("[C:H3]>>[C:H2]OH")
+    return reaction
+
+frame = customtkinter.CTkFrame(master=root)
+frame.pack(pady=20, padx=60, fill="both", expand=True)
+
+# Create a heading label
+heading_label = customtkinter.CTkLabel(master=frame, text="Chemistry", font=("Arial", 16, "bold"))
+heading_label.pack(pady=10)
+
+# Create buttons with more descriptive names and actions
+buttons = [
+    customtkinter.CTkButton(master=frame, text="Simulator", command=lambda: create_new_window("Simulator")),
+    customtkinter.CTkButton(master=frame, text="Experiment", command=lambda: create_new_window("Experiment")),
+    customtkinter.CTkButton(master=frame, text="Quiz", command=lambda: create_new_window("Quiz"))
+]
+
+# Pack buttons in a loop
+for button in buttons:
+    button.pack(pady=12, padx=10)
+
+root.mainloop() 
